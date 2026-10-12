@@ -487,7 +487,10 @@ public class WeasisWin {
         seriesViewer.addSeries(m);
       }
     } else if (seriesViewer instanceof ViewerPlugin<?> viewer) {
-      if (factory.canExternalizeSeries()) {
+      if (factory.canExternalizeSeries()
+          && GuiUtils.getUICore()
+              .getSystemPreferences()
+              .getBooleanProperty("weasis.viewer.externalize", true)) { // NON-NLS
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice[] gd = ge.getScreenDevices();
         if (gd.length > 1) {

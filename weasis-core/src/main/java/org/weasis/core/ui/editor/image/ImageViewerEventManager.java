@@ -83,6 +83,8 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
   protected final SwingPropertyChangeSupport propertySupport = new SwingPropertyChangeSupport(this);
   protected final HashMap<Feature<? extends ActionState>, ActionState> actions = new HashMap<>();
   protected final SynchManager<E> synchManager;
+
+  private volatile boolean mouseActionsPinned;
   private final ShortcutActions commonShortcuts = buildCommonShortcuts();
   private final ShortcutActions viewShortcuts = buildViewShortcuts();
 
@@ -738,6 +740,15 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
       return container.getSelectedViewCanvas();
     }
     return null;
+  }
+
+  /** Once pinned, the mouse actions saved by the user are kept when the application quits. */
+  public void setMouseActionsPinned(boolean mouseActionsPinned) {
+    this.mouseActionsPinned = mouseActionsPinned;
+  }
+
+  public boolean isMouseActionsPinned() {
+    return mouseActionsPinned;
   }
 
   public ViewportPane<E> getSelectedViewPortPane() {

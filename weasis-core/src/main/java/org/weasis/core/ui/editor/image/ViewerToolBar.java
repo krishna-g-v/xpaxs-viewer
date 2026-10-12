@@ -144,6 +144,11 @@ public class ViewerToolBar<E extends ImageElement> extends WtoolBar implements A
       mouseMiddle = null;
     }
 
+    QuickViewButtons<E> quickButtons = new QuickViewButtons<>(eventManager);
+    if (activeMouse > 1 && props.getBooleanProperty(QuickViewButtons.P_SAVE_MOUSE, true)) {
+      add(quickButtons.createSaveMouseActionsButton());
+    }
+
     if (activeMouse > 1) {
       addSeparator();
     }
@@ -161,6 +166,13 @@ public class ViewerToolBar<E extends ImageElement> extends WtoolBar implements A
           };
       layout.setToolTipText(Messages.getString("ViewerToolBar.layout"));
       add(layout);
+
+      String quickLayouts =
+          props.getProperty(QuickViewButtons.P_LAYOUTS, QuickViewButtons.DEFAULT_LAYOUTS);
+      quickButtons.createLayoutButtons(quickLayouts).forEach(this::add);
+      if (props.getBooleanProperty(QuickViewButtons.P_VIEW_MODE, true)) {
+        quickButtons.createViewModeButtons().forEach(this::add);
+      }
     }
 
     if (props.getBooleanProperty("weasis.toolbar.synch.button", true)) {

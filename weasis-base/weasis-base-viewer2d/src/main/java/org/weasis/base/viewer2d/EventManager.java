@@ -488,7 +488,9 @@ public class EventManager extends ImageViewerEventManager<ImageElement> implemen
     Preferences prefs = BundlePreferences.getDefaultPreferences(bundleContext);
     zoomSetting.savePreferences(prefs);
     // Mouse buttons preferences
-    mouseActions.savePreferences(prefs);
+    if (!isMouseActionsPinned()) {
+      mouseActions.savePreferences(prefs);
+    }
     if (prefs != null) {
       Preferences prefNode = prefs.node("mouse.sensivity");
       setSliderPreference(prefNode, ActionW.WINDOW);
