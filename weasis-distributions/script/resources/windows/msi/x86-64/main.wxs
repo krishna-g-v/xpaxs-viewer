@@ -73,14 +73,14 @@
     <Directory Id="TARGETDIR" Name="SourceDir"/>
 
     <DirectoryRef Id="INSTALLDIR">
-        <Component Id="URIHandlerRegistry" Guid="D99D1C53-7173-414B-81F8-AFC94641B3C0">
-            <!-- Register weasis protocol -->
-		        <RegistryKey Key="weasis" Root="HKCR">
-		          <RegistryValue Type="string" Value="Weasis URI handler"/>
+        <Component Id="URIHandlerRegistry" Guid="D1483398-9924-478F-9F59-098974DF8D36">
+            <!-- Register xpaxs protocol -->
+		        <RegistryKey Key="xpaxs" Root="HKCR">
+		          <RegistryValue Type="string" Value="XPAXS URI handler"/>
 		          <RegistryValue Name="URL Protocol" Type="string" Value=""/>
-		          <RegistryValue Name="DefaultIcon" Type="string" Value="&quot;[INSTALLDIR]Weasis.ico&quot;,1"/>
+		          <RegistryValue Name="DefaultIcon" Type="string" Value="&quot;[INSTALLDIR]XPAXS.ico&quot;,1"/>
 		          <RegistryKey Key="shell\open\command">
-		            <RegistryValue Type="string" Value="&quot;[INSTALLDIR]Weasis.exe&quot; &quot;%1&quot;"/>
+		            <RegistryValue Type="string" Value="&quot;[INSTALLDIR]XPAXS.exe&quot; &quot;%1&quot;"/>
 		          </RegistryKey>
 		        </RegistryKey>
        </Component>

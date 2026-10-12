@@ -95,8 +95,8 @@ jobs:
 
   jpackage:
     env:
-      NAME: "Weasis"
-      IDENTIFIER: "org.weasis.launcher"
+      NAME: "XPAXS"
+      IDENTIFIER: "com.xpaxs.launcher"
       WEASIS_INPUT: "native-dist/weasis-native/bin-dist"
       WEASIS_OUTPUT: "output-dist"
       WEASIS_INPUT_BIN: "native-dist/weasis-native/bin-dist/weasis"
@@ -302,16 +302,16 @@ jobs:
         env:
           RES: "${{ env.WEASIS_SCRIPT }}/resources/${{ matrix.wsystem }}"
           FILE_ASSOC: "${{ env.WEASIS_SCRIPT }}/file-associations.properties"
-          VENDOR: "Weasis Team"
-          COPYRIGHT: "© 2009-2026 Weasis Team"
+          VENDOR: "XPAXS"
+          COPYRIGHT: "© 2026 XPAXS. Based on Weasis © 2009-2026 Weasis Team"
         run: |
           mkdir -p final-dist
           machine=${{ matrix.wsystem }}
           ARC_NAME=${{ matrix.warc }}
           if [ "$machine" = "windows" ] ; then
-            [ "$ARC_NAME" = "aarch64" ] && UPGRADE_UID="3aedc24e-48a8-4623-ab39-0c3c01c7383c" || UPGRADE_UID="3aedc24e-48a8-4623-ab39-0c3c01c7383a"
+            [ "$ARC_NAME" = "aarch64" ] && UPGRADE_UID="c5fe17f4-de54-4401-9c8b-3c04d339f29f" || UPGRADE_UID="92231d9e-995f-4095-bbd0-a5388cbe3530"
             jpackage --type "msi" --app-image "${{ env.WEASIS_OUTPUT }}/${{ env.NAME }}" --dest "${{ env.WEASIS_OUTPUT }}" --name "${{ env.NAME }}" --resource-dir "${{ env.RES }}/msi/${ARC_NAME}" \
-            --license-file "${{ env.WEASIS_INPUT }}/Licence.txt" --description "Weasis DICOM viewer" --win-upgrade-uuid "$UPGRADE_UID" \
+            --license-file "${{ env.WEASIS_INPUT }}/Licence.txt" --description "XPAXS DICOM viewer" --win-upgrade-uuid "$UPGRADE_UID" \
             --win-menu --win-menu-group "${{ env.NAME }}" --copyright "${{ env.COPYRIGHT }}" --app-version "${{ env.WEASIS_CLEAN_VERSION }}" \
             --vendor "${{ env.VENDOR }}" --file-associations "${{ env.FILE_ASSOC }}" --verbose
             cp ${{ env.WEASIS_OUTPUT }}/*.msi final-dist/${{ env.NAME }}-${{ env.WEASIS_CLEAN_VERSION }}-${ARC_NAME}.msi
