@@ -110,7 +110,8 @@ public final class AppProperties {
 
   /**
    * Reduces a launch property to a single path element: such a value can be supplied by a {@code
-   * weasis://} link and the resulting directory is deleted recursively at startup.
+   * xpaxs://} (or {@code weasis://}) link and the resulting directory is deleted recursively at
+   * startup.
    */
   private static String toSafePathElement(String value, String defaultValue) {
     if (!StringUtil.hasText(value)) {

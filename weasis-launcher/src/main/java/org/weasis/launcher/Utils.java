@@ -55,8 +55,9 @@ public class Utils {
     return hasLength(str) && str.chars().anyMatch(c -> !Character.isWhitespace(c));
   }
 
+  /** The protocol of the launch links: {@code xpaxs://}, and {@code weasis://} of the upstream. */
   public static Pattern getWeasisProtocolPattern() {
-    return Pattern.compile("^weasis(-.*)?://.*?");
+    return Pattern.compile("^(xpaxs|weasis)(-.*)?://.*?"); // NON-NLS
   }
 
   public static int getWeasisProtocolIndex(String... params) {

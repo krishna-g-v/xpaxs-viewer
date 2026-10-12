@@ -88,6 +88,9 @@ import org.weasis.pref.ConfigData;
  */
 public class WeasisLauncher {
 
+  /** The macOS bundle identifier, the one of {@code IDENTIFIER} in the packaging scripts. */
+  private static final String MAC_BUNDLE_ID = "com.xpaxs.launcher"; // NON-NLS
+
   private static final Logger LOGGER = LoggerFactory.getLogger(WeasisLauncher.class);
 
   public enum Type {
@@ -1175,7 +1178,7 @@ Starting OSGI Bundles...
 
   private static String[] getArgsForURI(String uri) {
     if (SystemInfo.isMacOS) {
-      return new String[] {"open", "-n", "-b", "org.weasis.launcher", "--args", uri}; // NON-NLS
+      return new String[] {"open", "-n", "-b", MAC_BUNDLE_ID, "--args", uri}; // NON-NLS
     } else if (SystemInfo.isWindows) {
       return new String[] {"cmd", "/c", "start", uri}; // NON-NLS
     } else {

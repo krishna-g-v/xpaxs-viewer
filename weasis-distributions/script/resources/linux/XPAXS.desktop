@@ -8,4 +8,4 @@ Icon=APPLICATION_ICON
 Terminal=false
 Type=Application
 Categories=DEPLOY_BUNDLE_CATEGORY
-DESKTOP_MIMES;x-scheme-handler/weasis;
+DESKTOP_MIMES;x-scheme-handler/xpaxs;

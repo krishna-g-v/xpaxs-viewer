@@ -141,4 +141,14 @@ class ConfigDataTest {
 
     assertNotEquals(first, second);
   }
+
+  @Test
+  void launchLinks_useTheXpaxsProtocolAndStillAcceptTheUpstreamOne() {
+    ConfigData xpaxs = launch("xpaxs://?$weasis:config pro=\"weasis.profile from-xpaxs\"");
+    ConfigData upstream = launch("weasis://?$weasis:config pro=\"weasis.profile from-weasis\"");
+
+    assertAll(
+        () -> assertEquals("from-xpaxs", xpaxs.getProperty(ConfigData.P_WEASIS_PROFILE)),
+        () -> assertEquals("from-weasis", upstream.getProperty(ConfigData.P_WEASIS_PROFILE)));
+  }
 }
