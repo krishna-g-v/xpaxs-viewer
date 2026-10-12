@@ -123,6 +123,11 @@ public class LocalExport extends AbstractItemDialogPage implements ExportDicom {
   /** Id of the masking profile applied to image exports; empty for none. */
   public static final String IMG_MASKING_PROFILE = "exp.masking.profile"; // NON-NLS
 
+  /**
+   * The format an export dialog starts with: the name of a {@link Format}, DICOM_ZIP by default.
+   */
+  public static final String P_DEFAULT_FORMAT = "weasis.export.default.format"; // NON-NLS
+
   public static final String DICOM_TSUID = "exp.dicom.tsuid"; // NON-NLS
   public static final String DICOM_ONLY_RAW = "exp.dicom.only.raw"; // NON-NLS
   public static final String DICOM_NEW_UID = "exp.dicom.new.uid"; // NON-NLS
@@ -143,6 +148,14 @@ public class LocalExport extends AbstractItemDialogPage implements ExportDicom {
     Format(String title, String extension) {
       this.title = title;
       this.extension = extension;
+    }
+
+    /** Returns the format of the given name or title; DICOM when it is unknown. */
+    public static Format fromName(String name) {
+      return Arrays.stream(values())
+          .filter(f -> f.name().equalsIgnoreCase(name) || f.title.equalsIgnoreCase(name))
+          .findFirst()
+          .orElse(DICOM);
     }
 
     @Override
@@ -188,6 +201,11 @@ public class LocalExport extends AbstractItemDialogPage implements ExportDicom {
     this.dicomModel = dicomModel;
     this.exportTree = new ExportTree(treeModel);
     this.comboBoxImgFormat = new JComboBox<>(new DefaultComboBoxModel<>(Format.values()));
+    comboBoxImgFormat.setSelectedItem(
+        Format.fromName(
+            GuiUtils.getUICore()
+                .getSystemPreferences()
+                .getProperty(P_DEFAULT_FORMAT, Format.DICOM_ZIP.name())));
     initGUI();
   }
 

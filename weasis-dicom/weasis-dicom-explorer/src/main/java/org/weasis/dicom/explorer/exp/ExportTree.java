@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.tree.TreePath;
+import org.weasis.core.api.gui.util.GuiUtils;
 import org.weasis.core.ui.util.TreeBuilder;
 import org.weasis.core.ui.util.tree.CheckboxTree;
 import org.weasis.dicom.explorer.DicomModel;
@@ -25,6 +26,8 @@ import org.weasis.dicom.explorer.exp.CheckTreeModel.ToolTipSeriesNode;
 import org.weasis.dicom.explorer.exp.CheckTreeModel.ToolTipStudyNode;
 
 public class ExportTree extends JPanel {
+
+  public static final String P_KEY_OBJECT_SELECTION = "weasis.export.keyobjects.default"; // NON-NLS
 
   private CheckTreeModel checkTreeModel;
 
@@ -73,6 +76,13 @@ public class ExportTree extends JPanel {
     };
   }
 
+  /** Whether an export of series with key objects starts with their key images checked. */
+  private static boolean isKeyObjectSelectionEnabled() {
+    return GuiUtils.getUICore()
+        .getSystemPreferences()
+        .getBooleanProperty(P_KEY_OBJECT_SELECTION, true);
+  }
+
   public static void initTree(CheckTreeModel checkTreeModel, CheckboxTree checkboxTree) {
     checkboxTree.setCellRenderer(TreeBuilder.buildNoIconCheckboxTreeCellRenderer());
     // Register tooltips
@@ -95,7 +105,11 @@ public class ExportTree extends JPanel {
           studyPathsSet.add(checkingPath.getParentPath());
         }
       }
-      checkboxTree.setCheckingPaths(studyPathsSet.toArray(new TreePath[0]));
+      List<TreePath> keyObjectPaths =
+          KeyObjectSelection.pathsFor(checkingPaths, DicomModel::getKoSpecialElements);
+      boolean keyObjects = !keyObjectPaths.isEmpty() && isKeyObjectSelectionEnabled();
+      checkboxTree.setCheckingPaths(
+          (keyObjects ? keyObjectPaths : studyPathsSet).toArray(new TreePath[0]));
 
       List<TreePath> selectedPaths = checkTreeModel.getDefaultSelectedPaths();
       if (!selectedPaths.isEmpty()) {

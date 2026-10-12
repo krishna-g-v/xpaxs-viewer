@@ -20,6 +20,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.xml.stream.XMLInputFactory;
@@ -110,8 +111,15 @@ public class ConfigData {
   public static final String PARAM_CODEBASE = "cdb"; // NON-NLS
   public static final String PARAM_AUTHORIZATION = "auth"; // NON-NLS
 
+  /** The launch option naming the user profile: {@code -u <name>}. */
+  public static final String PROFILE_OPTION = "-u"; // NON-NLS
+
+  private static final Pattern PROFILE_SUFFIX =
+      Pattern.compile("(?:^|\\s)-u\\s+(\\S+)\\s*$"); // NON-NLS
+
   private final List<String> arguments = new ArrayList<>();
   private final Properties properties = new Properties();
+  private String profileArgument;
 
   private final StringBuilder configOutput = new StringBuilder();
   private final Map<String, String> felixProps = new HashMap<>();
@@ -127,6 +135,7 @@ public class ConfigData {
     LOGGER.info("Initialization of the launch configuration...");
 
     if (args != null) {
+      args = takeProfileArgument(args);
       for (int i = 0; i < args.length; i++) {
         LOGGER.info("Main arg {} = {}", i, args[i]);
       }
@@ -158,6 +167,7 @@ public class ConfigData {
 
     // Extract config and weasis properties from arguments, but has no effect on those already set
     applyConfigFromArguments();
+    applyProfileArgument();
 
     // Load all the felix properties
     loadConfigProperties();
@@ -216,8 +226,10 @@ public class ConfigData {
     String version = preferences.getValue(P_WEASIS_VERSION, "0.0.0");
     addProperty(P_WEASIS_VERSION, version);
 
+    // One application instance per profile: use the profile of the launch, not only the configured
     String codebase = properties.getProperty(P_WEASIS_CODEBASE_URL);
-    addProperty(P_WEASIS_SOURCE_ID, toHex((codebase + profile).hashCode()));
+    String launchProfile = properties.getProperty(P_WEASIS_PROFILE);
+    addProperty(P_WEASIS_SOURCE_ID, toHex((codebase + launchProfile).hashCode()));
 
     String user = properties.getProperty(P_WEASIS_USER);
     if (!Utils.hasText(user)) {
@@ -440,6 +452,7 @@ public class ConfigData {
   private void clear() {
     arguments.clear();
     properties.clear();
+    profileArgument = null;
   }
 
   private void applyConfigToSystemProperties() {
@@ -496,6 +509,53 @@ public class ConfigData {
   private static void applyProxyProperty(String key, String value, boolean manual) {
     if (manual && Utils.hasText(value)) {
       System.setProperty(key, value);
+    }
+  }
+
+  /**
+   * Removes the {@code -u <name>} option, given as two arguments or at the end of the last one,
+   * from the arguments and keeps its value as the profile. A value that looks like a URL is not a
+   * profile: {@code -u} is also the URL option of the {@code image:get} and {@code dicom:rs}
+   * commands.
+   */
+  private String[] takeProfileArgument(String[] args) {
+    profileArgument = null;
+    List<String> remaining = new ArrayList<>(Arrays.asList(args));
+    for (int i = 0; i + 1 < remaining.size(); i++) {
+      if (PROFILE_OPTION.equals(remaining.get(i)) && isProfileName(remaining.get(i + 1))) {
+        profileArgument = remaining.get(i + 1);
+        remaining.subList(i, i + 2).clear();
+        return remaining.toArray(new String[0]);
+      }
+    }
+    if (!remaining.isEmpty()) {
+      int last = remaining.size() - 1;
+      Matcher matcher = PROFILE_SUFFIX.matcher(remaining.get(last));
+      if (matcher.find() && isProfileName(matcher.group(1))) {
+        profileArgument = matcher.group(1);
+        String before = remaining.get(last).substring(0, matcher.start()).strip();
+        if (before.isEmpty()) {
+          remaining.remove(last);
+        } else {
+          remaining.set(last, before);
+        }
+      }
+    }
+    return remaining.toArray(new String[0]);
+  }
+
+  private static boolean isProfileName(String value) {
+    return Utils.hasText(value)
+        && !value.startsWith("-")
+        && !value.startsWith("$")
+        && !value.contains("://")
+        && !value.startsWith("file:"); // NON-NLS
+  }
+
+  /** The profile of the {@code -u} option applies unless a property already names one. */
+  private void applyProfileArgument() {
+    if (profileArgument != null) {
+      addProperties(List.of(P_WEASIS_PROFILE + " " + profileArgument));
     }
   }
 

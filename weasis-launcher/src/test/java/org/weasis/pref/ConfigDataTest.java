@@ -60,4 +60,85 @@ class ConfigDataTest {
         () -> assertEquals("17181", configData.getProperty("gosh.port")), // NON-NLS
         () -> assertEquals("127.0.0.1", configData.getProperty("https.proxyHost"))); // NON-NLS
   }
+
+  private static ConfigData launch(String... args) {
+    // A launch leaves its properties in the JVM, where the next one would read them back
+    List.of(ConfigData.P_WEASIS_PROFILE, ConfigData.P_WEASIS_SOURCE_ID)
+        .forEach(System::clearProperty);
+    return new ConfigData(args);
+  }
+
+  @Test
+  void profileOption_givenAsTwoArguments_selectsTheProfile() {
+    ConfigData configData =
+        launch(
+            "$dicom:get", "-w", "https://pacs.example.org/wado", "-u", "radiologist@example.org");
+
+    assertAll(
+        () ->
+            assertEquals(
+                "radiologist@example.org", configData.getProperty(ConfigData.P_WEASIS_PROFILE)),
+        () ->
+            assertEquals(
+                List.of("dicom:get -w https://pacs.example.org/wado"), configData.getArguments()));
+  }
+
+  @Test
+  void profileOption_givenAtTheEndOfTheLastArgument_selectsTheProfile() {
+    ConfigData configData =
+        launch("$dicom:get -w https://pacs.example.org/wado -u radiologist@example.org");
+
+    assertAll(
+        () ->
+            assertEquals(
+                "radiologist@example.org", configData.getProperty(ConfigData.P_WEASIS_PROFILE)),
+        () ->
+            assertEquals(
+                List.of("dicom:get -w https://pacs.example.org/wado"), configData.getArguments()));
+  }
+
+  @Test
+  void profileOption_aloneAsTheLastArgument_leavesNoEmptyArgument() {
+    ConfigData configData = launch("-u radiologist@example.org");
+
+    assertEquals("radiologist@example.org", configData.getProperty(ConfigData.P_WEASIS_PROFILE));
+    assertTrue(configData.getArguments().isEmpty());
+  }
+
+  @Test
+  void profileOption_withAUrl_isTheUrlOptionOfTheCommands() {
+    ConfigData configData =
+        launch(
+            "$dicom:rs", "-u", "https://pacs.example.org/dicom-web", "-r", "StudyInstanceUID=1.2");
+
+    assertAll(
+        () -> assertEquals("default", configData.getProperty(ConfigData.P_WEASIS_PROFILE)),
+        () ->
+            assertEquals(
+                List.of("dicom:rs -u https://pacs.example.org/dicom-web -r StudyInstanceUID=1.2"),
+                configData.getArguments()));
+  }
+
+  @Test
+  void profileOption_cannotBeAPath() {
+    ConfigData configData = launch("-u", "../../etc");
+
+    assertEquals("default", configData.getProperty(ConfigData.P_WEASIS_PROFILE));
+  }
+
+  @Test
+  void profileOption_doesNotReplaceAProfileGivenByTheLaunchUri() {
+    ConfigData configData =
+        launch("weasis://?$weasis:config pro=\"weasis.profile from-uri\"", "-u", "from-option");
+
+    assertEquals("from-uri", configData.getProperty(ConfigData.P_WEASIS_PROFILE));
+  }
+
+  @Test
+  void profiles_haveTheirOwnSingleInstanceId() {
+    String first = launch("-u", "first@example.org").getSourceID();
+    String second = launch("-u", "second@example.org").getSourceID();
+
+    assertNotEquals(first, second);
+  }
 }
