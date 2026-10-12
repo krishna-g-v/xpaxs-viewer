@@ -23,8 +23,18 @@ public abstract class SynchManager<E extends ImageElement> {
 
   protected final ImageViewerEventManager<E> eventManager;
 
+  private volatile ManualScrollMode manualScrollMode = ManualScrollMode.LOCATION;
+
   public SynchManager(ImageViewerEventManager<E> eventManager) {
     this.eventManager = eventManager;
+  }
+
+  public ManualScrollMode getManualScrollMode() {
+    return manualScrollMode;
+  }
+
+  public void setManualScrollMode(ManualScrollMode manualScrollMode) {
+    this.manualScrollMode = Objects.requireNonNull(manualScrollMode);
   }
 
   public abstract void updateAllListeners(ImageViewerPlugin<E> viewerPlugin, SynchView synchView);

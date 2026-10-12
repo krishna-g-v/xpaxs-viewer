@@ -284,4 +284,31 @@ class ViewSynchDataTest {
     assertEquals(22.0, entry.getTargetLocation());
     assertSame(replaced, entry.getTargetPane());
   }
+
+  @Test
+  void manualSyncData_withoutIndexes_hasNoIndexes() {
+    ManualSyncData entry = new ManualSyncData(1.0, 2.0, Mockito.mock(ViewCanvas.class));
+    assertFalse(entry.hasIndexes());
+    assertEquals(ManualSyncData.UNKNOWN_INDEX, entry.getSourceIndex());
+    assertEquals(ManualSyncData.UNKNOWN_INDEX, entry.getTargetIndex());
+  }
+
+  @Test
+  void addManualSyncData_withIndexes_recordsThem() {
+    ViewSynchData data = new ViewSynchData(Mode.STACK, templateActions(true), false);
+    ViewCanvas<?> pane = Mockito.mock(ViewCanvas.class);
+    data.addManualSyncData(1.0, 2.0, 12, 40, pane);
+    ManualSyncData entry = data.getManualSyncDataByPane(pane);
+    assertTrue(entry.hasIndexes());
+    assertEquals(12, entry.getSourceIndex());
+    assertEquals(40, entry.getTargetIndex());
+  }
+
+  @Test
+  void manualSyncData_mapIndex_keepsTheOffsetRecordedWhenLinked() {
+    ManualSyncData entry = new ManualSyncData(0.0, 0.0, 10, 40, Mockito.mock(ViewCanvas.class));
+    assertEquals(40, entry.mapIndex(10));
+    assertEquals(45, entry.mapIndex(15));
+    assertEquals(37, entry.mapIndex(7));
+  }
 }

@@ -87,6 +87,7 @@ import org.weasis.core.ui.editor.SeriesViewerEvent;
 import org.weasis.core.ui.editor.SeriesViewerEvent.EVENT;
 import org.weasis.core.ui.editor.image.ImageViewerEventManager;
 import org.weasis.core.ui.editor.image.ImageViewerPlugin;
+import org.weasis.core.ui.editor.image.ManualScrollMode;
 import org.weasis.core.ui.editor.image.MouseActions;
 import org.weasis.core.ui.editor.image.SynchCineEvent;
 import org.weasis.core.ui.editor.image.SynchEvent;
@@ -148,6 +149,9 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
           "layout", // NON-NLS
           "mouseLeftAction", // NON-NLS
           "reset"); // NON-NLS
+
+  private static final String SYNCH_PREF_NODE = "synch"; // NON-NLS
+  private static final String P_MANUAL_SCROLL_MODE = "manualScrollMode"; // NON-NLS
 
   /** The single instance of this singleton class. */
   private static EventManager instance;
@@ -249,6 +253,12 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
       getSliderPreference(prefNode, ActionW.SCROLL_SERIES, 0.1);
       getSliderPreference(prefNode, ActionW.ROTATION, 0.25);
       getSliderPreference(prefNode, ActionW.ZOOM, 0.1);
+
+      synchManager.setManualScrollMode(
+          ManualScrollMode.fromName(
+              prefs
+                  .node(SYNCH_PREF_NODE)
+                  .get(P_MANUAL_SCROLL_MODE, ManualScrollMode.LOCATION.name())));
 
       /*
        * Get first the local value if existed, otherwise try to get the default server configuration and finally if
@@ -1642,6 +1652,11 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
       setSliderPreference(prefNode, ActionW.SCROLL_SERIES);
       setSliderPreference(prefNode, ActionW.ROTATION);
       setSliderPreference(prefNode, ActionW.ZOOM);
+
+      BundlePreferences.putStringPreferences(
+          prefs.node(SYNCH_PREF_NODE),
+          P_MANUAL_SCROLL_MODE,
+          synchManager.getManualScrollMode().name());
 
       prefNode = prefs.node("other"); // NON-NLS
       BundlePreferences.putBooleanPreferences(
