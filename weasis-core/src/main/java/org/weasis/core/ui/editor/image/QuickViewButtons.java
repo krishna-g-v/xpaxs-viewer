@@ -11,7 +11,6 @@ package org.weasis.core.ui.editor.image;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +45,11 @@ public final class QuickViewButtons<E extends ImageElement> {
   private static final int DEFAULT_TILE_SIZE = 2;
 
   private final ImageViewerEventManager<E> eventManager;
+  private final ViewLayoutSwitcher<E> switcher;
 
   public QuickViewButtons(ImageViewerEventManager<E> eventManager) {
     this.eventManager = eventManager;
+    this.switcher = new ViewLayoutSwitcher<>(eventManager);
   }
 
   /**
@@ -87,7 +88,7 @@ public final class QuickViewButtons<E extends ImageElement> {
     Optional<ComboItemListener<MigLayoutModel>> layoutAction =
         eventManager.getAction(ActionW.LAYOUT);
     for (Dimension grid : parseGrids(spec)) {
-      MigLayoutModel model = buildLayout(grid);
+      MigLayoutModel model = ViewLayoutSwitcher.buildLayout(grid);
       JButton button = new JButton(model.getIcon());
       button.setToolTipText(model.toString());
       button.addActionListener(e -> applyGrid(grid));
@@ -134,16 +135,18 @@ public final class QuickViewButtons<E extends ImageElement> {
   private void applyGrid(Dimension grid) {
     ViewportPane<E> pane = eventManager.getSelectedViewPortPane();
     if (pane != null && pane.isTiled()) {
-      showTiles(grid);
+      switcher.showTiles(eventManager.getSelectedView2dContainer(), grid);
     } else {
-      showStack(grid);
+      switcher.showStack(eventManager.getSelectedView2dContainer(), grid);
     }
   }
 
   private void showStack() {
     ViewportPane<E> pane = eventManager.getSelectedViewPortPane();
     if (pane != null && pane.isTiled()) {
-      showStack(new Dimension(pane.getTiledCols(), pane.getTiledRows()));
+      switcher.showStack(
+          eventManager.getSelectedView2dContainer(),
+          new Dimension(pane.getTiledCols(), pane.getTiledRows()));
     }
   }
 
@@ -153,77 +156,9 @@ public final class QuickViewButtons<E extends ImageElement> {
     if (container == null || pane == null || pane.isTiled()) {
       return;
     }
-    Dimension grid = container.getCellManager().getLayoutModel().getGridSize();
+    Dimension grid = ViewLayoutSwitcher.gridOf(container);
     boolean singleCell = grid.width * grid.height <= 1;
-    showTiles(singleCell ? new Dimension(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE) : grid);
-  }
-
-  /** Displays the grid as stacks, one per viewport. */
-  private void showStack(Dimension grid) {
-    ImageViewerPlugin<E> container = eventManager.getSelectedView2dContainer();
-    if (container == null || !container.supportsViewportPanes()) {
-      return;
-    }
-    for (ViewportPane<E> pane : container.getViewportPanes()) {
-      pane.switchToStack();
-    }
-    container.changeLayoutModel(findLayout(grid));
-  }
-
-  /** Displays the grid as the tiles of a single viewport, showing the selected series. */
-  private void showTiles(Dimension grid) {
-    ImageViewerPlugin<E> container = eventManager.getSelectedView2dContainer();
-    ViewportPane<E> selected = eventManager.getSelectedViewPortPane();
-    if (container == null || selected == null || !container.supportsViewportPanes()) {
-      return;
-    }
-    if (container.getCellManager().getLayoutModel().getCellCount() > 1) {
-      moveSeriesToFirstViewport(container, selected);
-      container.changeLayoutModel(ImageViewerPlugin.VIEWS_1x1);
-    }
-    ViewportPane<E> pane = eventManager.getSelectedViewPortPane();
-    if (pane == null) {
-      return;
-    }
-    pane.switchToTiled(grid.width, grid.height, () -> container.createDefaultView(null));
-    eventManager.updateComponentsListener(pane.getSelectedCanvas());
-  }
-
-  /** A layout change keeps the first viewports, so the series to keep must be in the first. */
-  private void moveSeriesToFirstViewport(ImageViewerPlugin<E> container, ViewportPane<E> selected) {
-    List<ViewportPane<E>> panes = container.getViewportPanes();
-    if (panes.isEmpty() || panes.getFirst() == selected) {
-      return;
-    }
-    ViewportPane<E> first = panes.getFirst();
-    if (selected.isTiled() || first.isTiled()) {
-      return;
-    }
-    first.getSelectedCanvas().setSeries(selected.getSelectedCanvas().getSeries(), null);
-    container.setSelectedImagePane(first.getSelectedCanvas());
-  }
-
-  private MigLayoutModel findLayout(Dimension grid) {
-    String id = layoutId(grid);
-    Optional<ComboItemListener<MigLayoutModel>> layoutAction =
-        eventManager.getAction(ActionW.LAYOUT);
-    return layoutAction
-        .flatMap(
-            a ->
-                Arrays.stream(a.getAllItem())
-                    .filter(MigLayoutModel.class::isInstance)
-                    .map(MigLayoutModel.class::cast)
-                    .filter(m -> id.equals(m.getId()))
-                    .findFirst())
-        .orElseGet(() -> buildLayout(grid));
-  }
-
-  private static MigLayoutModel buildLayout(Dimension grid) {
-    return ImageViewerPlugin.buildMigLayoutModel(
-        grid.height, grid.width, ImageViewerPlugin.VIEWPORT_CLASS.getName());
-  }
-
-  private static String layoutId(Dimension grid) {
-    return grid.height + "x" + grid.width;
+    switcher.showTiles(
+        container, singleCell ? new Dimension(DEFAULT_TILE_SIZE, DEFAULT_TILE_SIZE) : grid);
   }
 }

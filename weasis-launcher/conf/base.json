@@ -674,6 +674,13 @@
       "category": "VIEWER"
     },
     {
+      "code": "weasis.viewer.modality.defaults",
+      "value": "CT=2x6:STACK,US=3x4:TILE,CR+DX=1x2:TILE",
+      "description": "Layout and display mode a DICOM viewer opens with, by modality: <modalities>=<rows>x<columns>[:STACK|TILE], modality codes joined with +. STACK is a grid of stacks, TILE shows the grid as the tiles of one series.",
+      "type": "A",
+      "category": "VIEWER"
+    },
+    {
       "code": "weasis.all.cinetoolbar.visible",
       "value": "false",
       "description": "Show all the cine toolbars",
