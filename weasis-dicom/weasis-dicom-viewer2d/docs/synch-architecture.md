@@ -16,6 +16,21 @@ to others. Two independent mechanisms coexist:
 A third, separate case is **TILE** synchronization, scoped to the canvases of a single tiled
 viewport.
 
+Two rules refine these mechanisms:
+
+- **Independent modalities.** The series of the modalities named by the
+  `weasis.viewer.independent.modalities` preference (default `CR,DX`, the projection radiographs)
+  have no Frame of Reference for the synchronization: `DicomSynchManager.getFrameOfReferenceUID`
+  returns `null` for them, so their views are never auto-synchronized, whatever UID their images
+  carry. `View2d` shows each new image of such a series best-fit, even when the zoom type is
+  "current". The list is read by `IndependentModalities`.
+- **Tiled scrolling.** The scroll value of a tiled viewport is the 1-based index of the image of
+  its first tile; its last value, `ImageViewerEventManager.tiledScrollMax`, shows the last image
+  in the last tile. With the `weasis.viewer.tile.scroll.page` preference (default on) the mouse
+  wheel and the scroll drag move by `ImageViewerEventManager.getScrollStep()`, the tile count, from
+  page start to page start (`SliderChangeListener.steppedValue`); the last value is always
+  reachable.
+
 ---
 
 ## Architectural Changes

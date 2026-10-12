@@ -357,7 +357,8 @@ public abstract class SliderChangeListener extends MouseActionAdapter
         // Accelerate the action if ctrl or shift is down
         double acceleratorKey =
             (modifier & mask) == 0 ? 1.0 : (modifier & mask) == mask ? 5.0 : 2.5;
-        double val = (position - lastPosition) * getMouseSensitivity() * acceleratorKey;
+        int step = Math.max(1, getScrollStep());
+        double val = (position - lastPosition) * getMouseSensitivity() * acceleratorKey * step;
         if (MathUtil.isEqualToZero(val)) {
           return;
         }
@@ -374,11 +375,10 @@ public abstract class SliderChangeListener extends MouseActionAdapter
           dragAccumulator = getSliderMax();
         }
 
-        if (val < 0.0) {
-          setSliderValue((int) Math.ceil(dragAccumulator));
-        } else {
-          setSliderValue((int) Math.floor(dragAccumulator));
-        }
+        int target = (int) (val < 0.0 ? Math.ceil(dragAccumulator) : Math.floor(dragAccumulator));
+        // The slider maximum is the start of the last page, whatever its alignment
+        boolean snap = step > 1 && target < getSliderMax();
+        setSliderValue(snap ? pageStart(target, step) : target);
       }
     }
   }
@@ -393,8 +393,28 @@ public abstract class SliderChangeListener extends MouseActionAdapter
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     if (basicState.isActionEnabled() && !e.isConsumed()) {
-      setSliderValue(getSliderValue() + e.getWheelRotation() * e.getScrollAmount());
+      setSliderValue(steppedValue(e.getWheelRotation() * e.getScrollAmount()));
     }
+  }
+
+  /** Number of values a unit of scrolling moves the slider by, 1 unless a subclass pages it. */
+  protected int getScrollStep() {
+    return 1;
+  }
+
+  /**
+   * Returns the value reached by scrolling the given number of units. When the scroll step is
+   * greater than one, the value first goes back to the start of its page, so that scrolling always
+   * lands on the same page starts.
+   */
+  protected int steppedValue(int units) {
+    int step = Math.max(1, getScrollStep());
+    return step == 1 ? getSliderValue() + units : pageStart(getSliderValue(), step) + units * step;
+  }
+
+  private int pageStart(int value, int step) {
+    int min = getSliderMin();
+    return min + ((value - min) / step) * step;
   }
 
   public JSliderW createSlider(int labelDivision, boolean displayValueInTitle) {

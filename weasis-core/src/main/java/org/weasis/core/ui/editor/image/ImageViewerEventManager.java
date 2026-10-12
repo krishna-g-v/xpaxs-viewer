@@ -82,6 +82,8 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
   // Manages all PropertyChangeListeners in EDT
   protected final SwingPropertyChangeSupport propertySupport = new SwingPropertyChangeSupport(this);
   protected final HashMap<Feature<? extends ActionState>, ActionState> actions = new HashMap<>();
+  public static final String P_TILE_SCROLL_PAGE = "weasis.viewer.tile.scroll.page"; // NON-NLS
+
   protected final SynchManager<E> synchManager;
 
   private volatile boolean mouseActionsPinned;
@@ -159,7 +161,12 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
 
       @Override
       public void mouseWheelMoved(MouseWheelEvent e) {
-        setSliderValue(getSliderValue() + e.getWheelRotation());
+        setSliderValue(steppedValue(e.getWheelRotation()));
+      }
+
+      @Override
+      protected int getScrollStep() {
+        return ImageViewerEventManager.this.getScrollStep();
       }
     };
   }
@@ -824,6 +831,26 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
   }
 
   /**
+   * Returns the last scroll value of a tiled viewport. A scroll value is the 1-based index of the
+   * image shown by the first tile, so the last value is the one whose last tile shows the last
+   * image.
+   */
+  static int tiledScrollMax(int seriesSize, int tileCount) {
+    return Math.max(1, seriesSize - tileCount + 1);
+  }
+
+  /** Values the series scroll moves by: the tile count of a tiled viewport when paging is on. */
+  protected int getScrollStep() {
+    ViewportPane<E> pane = getSelectedViewPortPane();
+    if (pane == null || !pane.isTiled()) {
+      return 1;
+    }
+    boolean paging =
+        GuiUtils.getUICore().getSystemPreferences().getBooleanProperty(P_TILE_SCROLL_PAGE, true);
+    return paging ? Math.max(1, pane.getAllViewCanvases().size()) : 1;
+  }
+
+  /**
    * Restores the TILE synchronization of every tiled {@link ViewportPane} after the global listener
    * rebuild (which removes all SYNCH listeners), and adapts the scroll range when the selected
    * canvas belongs to a tiled pane so the last tiles cannot run past the series end.
@@ -843,16 +870,27 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
       if (series != null) {
         @SuppressWarnings("unchecked")
         Filter<E> filter = (Filter<E>) canvas.getActionValue(ActionW.FILTERED_SERIES.cmd());
-        int maxShift = series.size(filter) - selectedPane.getAllViewCanvases().size();
+        int max = tiledScrollMax(series.size(filter), selectedPane.getAllViewCanvases().size());
         int value = Math.max(1, canvas.getFrameIndex() - canvas.getTileOffset() + 1);
         getAction(ActionW.SCROLL_SERIES)
-            .ifPresent(a -> a.setSliderMinMaxValue(1, Math.max(maxShift, 1), value, false));
+            .ifPresent(a -> a.setSliderMinMaxValue(1, max, value, false));
       }
     }
   }
 
   protected boolean commonDisplayShortcuts(KeyEvent e) {
     return commonShortcuts.dispatch(e);
+  }
+
+  /** Closes the magnifying lens of the selected view first, otherwise resets the display. */
+  private void escape() {
+    ViewCanvas<E> view = getSelectedViewPane();
+    if (view != null && Boolean.TRUE.equals(view.getActionValue(ActionW.LENS.cmd()))) {
+      view.closeLens();
+      getAction(ActionW.LENS).ifPresent(a -> a.setSelectedWithoutTriggerAction(false));
+    } else {
+      resetDisplay();
+    }
   }
 
   /** Shortcuts of the selected view, evaluated before the mouse action keys. */
@@ -862,7 +900,7 @@ public abstract class ImageViewerEventManager<E extends ImageElement> implements
 
   private ShortcutActions buildCommonShortcuts() {
     return new ShortcutActions()
-        .on(ShortcutManager.ID_VIEWER_ESCAPE, this::resetDisplay)
+        .on(ShortcutManager.ID_VIEWER_ESCAPE, this::escape)
         .on(ActionW.CINESTART.cmd(), this::toggleCine)
         .on(ShortcutManager.ID_VIEWER_PRINT, this::showPrintDialog)
         .on(ShortcutManager.ID_VIEWER_SCREENSHOT, () -> capture(CaptureAction.SCREENSHOT))

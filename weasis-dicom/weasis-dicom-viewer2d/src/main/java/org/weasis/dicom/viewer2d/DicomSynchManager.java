@@ -73,6 +73,17 @@ public class DicomSynchManager extends SynchManager<DicomImageElement> {
     super(eventManager);
   }
 
+  /**
+   * A series of an independent modality has no Frame of Reference for the synchronization, so its
+   * views are never grouped, whatever the UID carried by its images.
+   */
+  @Override
+  protected String getFrameOfReferenceUID(MediaSeries<DicomImageElement> series) {
+    return IndependentModalities.isIndependent(series)
+        ? null
+        : super.getFrameOfReferenceUID(series);
+  }
+
   @Override
   public void updateAllListeners(
       ImageViewerPlugin<DicomImageElement> viewerPlugin, SynchView synchView) {

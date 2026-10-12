@@ -756,6 +756,30 @@ public class View2d extends DefaultView2d<DicomImageElement> {
     }
   }
 
+  /** A new image of an independent modality is always shown best-fit, whatever the zoom kept. */
+  @Override
+  public void resetZoom() {
+    if (mustFitNewImage()) {
+      zoom(0.0);
+    } else {
+      super.resetZoom();
+    }
+  }
+
+  @Override
+  public double getZoomRatioFromType(Double viewScale) {
+    if (mustFitNewImage() && MathUtil.isEqualToZero(viewScale)) {
+      return -getBestFitViewScale();
+    }
+    return super.getZoomRatioFromType(viewScale);
+  }
+
+  /** True when the zoom type is "current" but the images of this series must still be fitted. */
+  private boolean mustFitNewImage() {
+    return ZoomType.CURRENT.equals(actionsInView.get(ViewCanvas.ZOOM_TYPE_CMD))
+        && IndependentModalities.isIndependent(series);
+  }
+
   private void deletePrLayers() {
     // Delete previous PR Layers
     List<GraphicLayer> dcmLayers =
