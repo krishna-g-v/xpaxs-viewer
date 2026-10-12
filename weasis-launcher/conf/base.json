@@ -621,6 +621,44 @@
       "category": "UI"
     },
     {
+      "code": "weasis.toolbar.layout.quick",
+      "value": "1x1,1x2,1x3,1x4,2x1,2x2,2x4,2x5,3x1,3x4,3x5,4x2",
+      "description": "One-click layout buttons of the main toolbar, as a comma separated list of <rows>x<columns> grids. Empty to hide them.",
+      "type": "A",
+      "category": "UI"
+    },
+    {
+      "code": "weasis.toolbar.viewmode.buttons",
+      "value": "true",
+      "description": "Show the Stack and Tile buttons in the main toolbar",
+      "type": "A",
+      "javaType": "BOOLEAN",
+      "category": "UI"
+    },
+    {
+      "code": "weasis.toolbar.mouse.save",
+      "value": "true",
+      "description": "Show the button saving the mouse buttons actions in the main toolbar",
+      "type": "A",
+      "javaType": "BOOLEAN",
+      "category": "UI"
+    },
+    {
+      "code": "weasis.toolbar.lut.presets",
+      "value": "default,weasis.ct.brain,weasis.ct.lung,weasis.ct.mediastinum,weasis.ct.abdomen,weasis.ct.bone",
+      "description": "One-click window/level preset buttons of the lookup toolbar: 'default' (the first preset of the image) or window preset ids. Empty to hide them.",
+      "type": "A",
+      "category": "UI"
+    },
+    {
+      "code": "weasis.viewer.externalize",
+      "value": "true",
+      "description": "Allow a viewer to be moved to another screen as an external window (offered when several screens are available)",
+      "type": "A",
+      "javaType": "BOOLEAN",
+      "category": "UI"
+    },
+    {
       "code": "weasis.all.cinetoolbar.visible",
       "value": "false",
       "description": "Show all the cine toolbars",

@@ -141,6 +141,7 @@ public class ResourceUtil {
     ROTATE_CLOCKWISE("svg/action/rotateClockwise.svg"), // NON-NLS
     ROTATE_COUNTERCLOCKWISE("svg/action/rotateCounterclockwise.svg"), // NON-NLS
     ROTATION("svg/action/rotation.svg"), // NON-NLS
+    SAVE_MOUSE_ACTIONS("svg/action/saveMouseActions.svg"), // NON-NLS
     SELECTION("svg/action/selection.svg"), // NON-NLS
     SELECTION_DELETE("svg/action/selectionDelete.svg"), // NON-NLS
     SEQUENCE("svg/action/sequence.svg"), // NON-NLS

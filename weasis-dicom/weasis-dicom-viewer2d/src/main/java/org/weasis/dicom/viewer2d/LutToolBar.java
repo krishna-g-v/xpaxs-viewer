@@ -76,6 +76,8 @@ public class LutToolBar extends WtoolBar {
     add(presetButton);
     presetAction.ifPresent(
         objectComboItemListener -> objectComboItemListener.registerActionState(presetButton));
+    PresetQuickButtons.create(eventManager, PresetQuickButtons.configuredEntries())
+        .forEach(this::add);
 
     ColorMapRadioMenu menuLut = null;
     Optional<ComboItemListener<ByteLut>> lutAction = eventManager.getAction(ActionW.LUT);
