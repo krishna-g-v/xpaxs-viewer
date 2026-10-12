@@ -659,6 +659,13 @@
       "category": "VIEWER"
     },
     {
+      "code": "weasis.viewer.combine.modalities",
+      "value": "CR,DX,PX",
+      "description": "Modalities (DICOM Modality codes) whose series of a study can be shown together as one series from the thumbnail context menu, without changing the series. Empty to disable.",
+      "type": "A",
+      "category": "VIEWER"
+    },
+    {
       "code": "weasis.viewer.tile.scroll.page",
       "value": "true",
       "description": "In a tiled viewport, scroll by a whole page of tiles with the mouse wheel and the scroll drag instead of one image",
