@@ -488,6 +488,11 @@ public class ViewerToolBar<E extends ImageElement> extends WtoolBar implements A
             }
             menu.setInvoker(this);
 
+            if (ManualScrollModeMenu.isRelevant(selectedViewSynch)) {
+              menu.addSeparator();
+              ManualScrollModeMenu.addTo(menu, eventManager.synchManager);
+            }
+
             if (selectedViewSynch != null) {
               menu.addSeparator();
               JMenuItem applyToAll;

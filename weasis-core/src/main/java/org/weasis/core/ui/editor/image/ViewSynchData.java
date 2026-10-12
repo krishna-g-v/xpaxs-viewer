@@ -98,6 +98,16 @@ public class ViewSynchData extends SynchData {
     this.manualSyncDataSet.add(new ManualSyncData(sourceLocation, targetLocation, targetPane));
   }
 
+  public void addManualSyncData(
+      double sourceLocation,
+      double targetLocation,
+      int sourceIndex,
+      int targetIndex,
+      ViewCanvas<?> targetPane) {
+    this.manualSyncDataSet.add(
+        new ManualSyncData(sourceLocation, targetLocation, sourceIndex, targetIndex, targetPane));
+  }
+
   public void removeManualSyncData(ManualSyncData manualSyncData) {
     this.manualSyncDataSet.remove(manualSyncData);
   }
@@ -149,14 +159,47 @@ public class ViewSynchData extends SynchData {
 
   public static class ManualSyncData {
 
+    /** Marks the image indexes as unknown, so only the location offset can be used. */
+    public static final int UNKNOWN_INDEX = -1;
+
     protected double sourceLocation;
     protected double targetLocation;
+    protected int sourceIndex;
+    protected int targetIndex;
     protected ViewCanvas<?> targetPane;
 
     public ManualSyncData(double sourceLocation, double targetLocation, ViewCanvas<?> targetPane) {
+      this(sourceLocation, targetLocation, UNKNOWN_INDEX, UNKNOWN_INDEX, targetPane);
+    }
+
+    public ManualSyncData(
+        double sourceLocation,
+        double targetLocation,
+        int sourceIndex,
+        int targetIndex,
+        ViewCanvas<?> targetPane) {
       this.sourceLocation = sourceLocation;
       this.targetLocation = targetLocation;
+      this.sourceIndex = sourceIndex;
+      this.targetIndex = targetIndex;
       this.targetPane = targetPane;
+    }
+
+    public int getSourceIndex() {
+      return sourceIndex;
+    }
+
+    public int getTargetIndex() {
+      return targetIndex;
+    }
+
+    public boolean hasIndexes() {
+      return sourceIndex >= 0 && targetIndex >= 0;
+    }
+
+    /** Maps an image index of the source series to the index at the same offset in the target. */
+    public int mapIndex(int index) {
+      return targetIndex + index - sourceIndex;
     }
 
     public double getSourceLocation() {

@@ -374,6 +374,11 @@ public abstract class DefaultView2d<E extends ImageElement> extends GraphicsPane
     popup.insert(syncToggle, 0);
     popup.insert(new JPopupMenu.Separator(), 1);
 
+    if (ManualScrollModeMenu.isRelevant(sd)) {
+      popup.addSeparator();
+      ManualScrollModeMenu.addTo(popup, eventManager.synchManager);
+    }
+
     popup.addSeparator();
     JMenuItem applyToAll = new JMenuItem(Messages.getString("ViewerToolBar.synch_apply_to_all"));
     // Decorate with this view's FoR chip so the user knows which group is being propagated.
@@ -768,8 +773,12 @@ public abstract class DefaultView2d<E extends ImageElement> extends GraphicsPane
     synchDataSource.setOriginal(false);
     synchDataTarget.setOriginal(false);
 
-    synchDataSource.addManualSyncData(sourcePosition, targetPosition, target);
-    synchDataTarget.addManualSyncData(targetPosition, sourcePosition, source);
+    int sourceIndex = source.getFrameIndex();
+    int targetIndex = target.getFrameIndex();
+    synchDataSource.addManualSyncData(
+        sourcePosition, targetPosition, sourceIndex, targetIndex, target);
+    synchDataTarget.addManualSyncData(
+        targetPosition, sourcePosition, targetIndex, sourceIndex, source);
 
     source.setActionsInView(ActionW.SYNCH_LINK.cmd(), synchDataSource);
     target.setActionsInView(ActionW.SYNCH_LINK.cmd(), synchDataTarget);
@@ -1594,6 +1603,17 @@ public abstract class DefaultView2d<E extends ImageElement> extends GraphicsPane
       return getImage();
     }
 
+    ViewSynchData.ManualSyncData manualLink = getManualLink(issuer, self);
+    if (manualLink != null
+        && manualLink.hasIndexes()
+        && eventManager.synchManager.getManualScrollMode() == ManualScrollMode.INDEX) {
+      int size = series.size(filter);
+      if (size > 0) {
+        int index = Math.clamp(manualLink.mapIndex(synch.getSeriesIndex()), 0, size - 1);
+        return series.getMedia(index, filter, getCurrentSortComparator());
+      }
+    }
+
     // External event with no slice location: fall back to series index
     if (synch.getLocation() == null) {
       AuditLog.LOGGER.info("synch:series nb:{}", series.getSeriesNumber());
@@ -1625,14 +1645,19 @@ public abstract class DefaultView2d<E extends ImageElement> extends GraphicsPane
    * manually synchronized: {@code location += target - source}.
    */
   private double applyManualSyncOffset(double location, ViewSynchData issuer, ViewSynchData self) {
+    ViewSynchData.ManualSyncData msd = getManualLink(issuer, self);
+    return msd == null ? location : location + msd.getTargetLocation() - msd.getSourceLocation();
+  }
+
+  /** Returns the link the issuer holds towards this view, when both are manually synchronized. */
+  private ViewSynchData.ManualSyncData getManualLink(ViewSynchData issuer, ViewSynchData self) {
     if (self == null
         || issuer == null
         || self.getManualSyncState() != SyncState.ON
         || issuer.getManualSyncState() != SyncState.ON) {
-      return location;
+      return null;
     }
-    ViewSynchData.ManualSyncData msd = issuer.getManualSyncDataByPane(this);
-    return msd == null ? location : location + msd.getTargetLocation() - msd.getSourceLocation();
+    return issuer.getManualSyncDataByPane(this);
   }
 
   /** Set the image while preserving the current zoom mode (best-fit / real-size / current). */

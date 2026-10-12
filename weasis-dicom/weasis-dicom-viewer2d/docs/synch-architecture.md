@@ -54,7 +54,7 @@ SynchManager<E>                    (abstract, weasis-core)
 - `original` is `true` while the configuration is the computed default; any user change sets it
   to `false`, and `DicomSynchManager` then keeps that configuration instead of recomputing it.
 - `ViewSynchData.ManualSyncData` records `(sourceLocation, targetLocation, targetPane)` for each
-  manually linked view.
+  manually linked view, plus the image index each view showed when they were paired.
 
 ### 3. UI Components
 
@@ -63,6 +63,7 @@ SynchManager<E>                    (abstract, weasis-core)
 | **`SynchViewButton`** | Overlay button on each view. Red (OFF) or green (ON); shows a colour chip identifying the view's `FrameOfReferenceUID` when its container holds several. Click opens a popup: toggle sync for this view, per-action options, *Apply to all views*. |
 | **`ManualSynchViewButton`** | Overlay button on each view (hand icon, red/green). Click sets up manual sync, or removes the view from its manual sync group. |
 | **`SynchOptionsCheckBoxGroup`** | The per-action checkboxes (scroll, pan, zoom, rotation, flip, window/level, spatial unit) shared by the per-view popup and the toolbar *Synch* drop-down. |
+| **`ManualScrollModeMenu`** | Radio choice of the manual link scroll mode, added to the toolbar *Synch* drop-down and to the per-view popup while the view can be, or is, manually linked. |
 
 Both overlay buttons are hidden in TILE mode. `DefaultView2d.updateSynchState()` is the single
 place that renders them from the view's `ViewSynchData`.
@@ -83,8 +84,13 @@ source view ──SynchEvent / SynchCineEvent──> ImageViewerEventManager ─
 - **`SynchCineEvent`** (scroll, cine): accepted when both views are synchronized, both have
   *Scroll* enabled, and one link holds – same `FrameOfReferenceUID` with auto sync ON, a
   `ManualSyncData` entry with manual sync ON, or the same tiled `ViewportPane`.
-- **Manual offset:** for a manual link the slice location is shifted:
-  `location = location + targetLocation - sourceLocation`.
+- **Manual offset:** how a manually linked view follows is set by `ManualScrollMode`, held by
+  `SynchManager` and persisted with the DICOM viewer preferences:
+  - `LOCATION` (default): the slice location is shifted,
+    `location = location + targetLocation - sourceLocation`, and the nearest image is shown;
+  - `INDEX`: the image index keeps the offset recorded at pairing,
+    `ManualSyncData.mapIndex(index)`, clamped to the target series; this follows the scroll
+    image for image whatever the slice spacing of the two series.
 
 ---
 
