@@ -531,21 +531,21 @@
     },
     {
       "code": "weasis.toolbar.mouse.left",
-      "value": "winLevel",
+      "value": "pan",
       "description": "Left mouse button action, possible values: pan|winLevel|sequence|zoom|rotation|measure|drawings|contextMenu|crosshair|none",
       "type": "F",
       "category": "VIEWER"
     },
     {
       "code": "weasis.toolbar.mouse.middle",
-      "value": "pan",
+      "value": "sequence",
       "description": "Middle mouse button action, possible values: pan|winLevel|sequence|zoom|rotation|measure|drawings|contextMenu|crosshair|none",
       "type": "F",
       "category": "VIEWER"
     },
     {
       "code": "weasis.toolbar.mouse.right",
-      "value": "contextMenu",
+      "value": "zoom",
       "description": "Right mouse button action, possible values: pan|winLevel|sequence|zoom|rotation|measure|drawings|contextMenu|crosshair|none",
       "type": "F",
       "category": "VIEWER"
@@ -672,6 +672,21 @@
       "description": "Layout and display mode a DICOM viewer opens with, by modality: <modalities>=<rows>x<columns>[:STACK|TILE], modality codes joined with +. STACK is a grid of stacks, TILE shows the grid as the tiles of one series.",
       "type": "A",
       "category": "VIEWER"
+    },
+    {
+      "code": "weasis.export.default.format",
+      "value": "DICOM_ZIP",
+      "description": "Format the export dialogs start with: DICOM, DICOM_ZIP, JPEG, JPEG_XL, PNG, TIFF or JP2",
+      "type": "A",
+      "category": "UI"
+    },
+    {
+      "code": "weasis.export.keyobjects.default",
+      "value": "true",
+      "description": "When the series to export have key objects, start the export with their key images, key objects and annotations checked instead of whole studies",
+      "type": "A",
+      "javaType": "BOOLEAN",
+      "category": "UI"
     },
     {
       "code": "weasis.all.cinetoolbar.visible",
