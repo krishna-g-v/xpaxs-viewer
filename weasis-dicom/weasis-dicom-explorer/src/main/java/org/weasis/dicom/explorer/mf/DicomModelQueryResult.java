@@ -24,6 +24,7 @@ import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.DicomSpecialElement;
 import org.weasis.dicom.codec.TagD;
+import org.weasis.dicom.explorer.CombinedProjectionSeries;
 import org.weasis.dicom.explorer.DicomModel;
 import org.weasis.dicom.mf.AbstractQueryResult;
 import org.weasis.dicom.mf.Patient;
@@ -65,6 +66,9 @@ public class DicomModelQueryResult extends AbstractQueryResult {
       for (MediaSeriesGroup study : model.getChildren(patient)) {
         Study st = getStudy(study, p);
         for (MediaSeriesGroup series : model.getChildren(study)) {
+          if (series instanceof CombinedProjectionSeries) {
+            continue; // display only: its images are listed by their own series
+          }
           Series s = getSeries(series, st);
           if (series instanceof MediaSeries) {
             WadoParameters wadoParams = (WadoParameters) series.getTagValue(TagW.WadoParameters);

@@ -52,6 +52,7 @@ import org.weasis.dicom.explorer.DicomSeriesHandler;
 import org.weasis.dicom.explorer.LoadLocalDicom;
 import org.weasis.dicom.explorer.Messages;
 import org.weasis.dicom.explorer.MimeSystemAppFactory;
+import org.weasis.dicom.explorer.ProjectionSeriesCombiner;
 import org.weasis.dicom.explorer.tag.DicomFieldsView;
 import org.weasis.dicom.explorer.wado.LoadSeries;
 
@@ -149,6 +150,7 @@ public class ThumbnailMouseAndKeyAdapter extends MouseAdapter implements KeyList
     addSelectionMenuItems(popupMenu, selList);
     addLoadSeriesMenuItems(popupMenu, selList);
     addMergeMenuItem(popupMenu, selList, seriesList);
+    addCombineProjectionsMenuItem(popupMenu, selList);
     addRemovalMenuItems(popupMenu, selList);
     addSplitPhases(popupMenu, selList);
     addThumbnailMenuItems(popupMenu, selList);
@@ -390,6 +392,18 @@ public class ThumbnailMouseAndKeyAdapter extends MouseAdapter implements KeyList
             dicomModel.mergeSeries(seriesList);
           });
       popupMenu.add(mergeItem);
+    }
+  }
+
+  private void addCombineProjectionsMenuItem(JPopupMenu popupMenu, SeriesSelectionModel selList) {
+    if (selList.size() == 1 && ProjectionSeriesCombiner.canCombine(dicomModel, series)) {
+      popupMenu.add(new JSeparator());
+      JMenuItem item = new JMenuItem(Messages.getString("ProjectionSeriesCombiner.show"));
+      item.addActionListener(
+          e ->
+              ProjectionSeriesCombiner.show(dicomModel, series)
+                  .ifPresent(combined -> openSeriesInDefaultPlugin(combined, dicomModel)));
+      popupMenu.add(item);
     }
   }
 

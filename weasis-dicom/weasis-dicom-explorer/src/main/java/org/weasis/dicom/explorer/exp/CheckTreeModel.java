@@ -32,6 +32,7 @@ import org.weasis.dicom.codec.DcmMediaReader;
 import org.weasis.dicom.codec.DicomSeries;
 import org.weasis.dicom.codec.DicomSpecialElement;
 import org.weasis.dicom.codec.TagD;
+import org.weasis.dicom.explorer.CombinedProjectionSeries;
 import org.weasis.dicom.explorer.DicomModel;
 import org.weasis.dicom.explorer.DicomSorter;
 import org.weasis.dicom.explorer.Messages;
@@ -192,7 +193,7 @@ public class CheckTreeModel {
       for (MediaSeriesGroup study : dicomModel.getChildren(pt)) {
         DefaultMutableTreeNode studyNode = new ToolTipStudyNode(study, true);
         for (MediaSeriesGroup item : dicomModel.getChildren(study)) {
-          if (item instanceof Series) {
+          if (item instanceof Series && !(item instanceof CombinedProjectionSeries)) {
             buildSeries(studyNode, (Series<?>) item);
           }
         }
