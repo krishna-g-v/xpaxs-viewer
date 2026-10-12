@@ -659,6 +659,21 @@
       "category": "UI"
     },
     {
+      "code": "weasis.viewer.independent.modalities",
+      "value": "CR,DX",
+      "description": "Modalities (DICOM Modality codes) whose images are independent, such as the projection radiographs: each image is shown best-fit and their views are never synchronized together. Empty for none.",
+      "type": "A",
+      "category": "VIEWER"
+    },
+    {
+      "code": "weasis.viewer.tile.scroll.page",
+      "value": "true",
+      "description": "In a tiled viewport, scroll by a whole page of tiles with the mouse wheel and the scroll drag instead of one image",
+      "type": "A",
+      "javaType": "BOOLEAN",
+      "category": "VIEWER"
+    },
+    {
       "code": "weasis.all.cinetoolbar.visible",
       "value": "false",
       "description": "Show all the cine toolbars",
