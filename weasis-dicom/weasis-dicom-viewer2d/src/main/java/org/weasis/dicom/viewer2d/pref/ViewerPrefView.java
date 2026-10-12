@@ -46,6 +46,7 @@ import org.weasis.dicom.codec.DicomImageElement;
 import org.weasis.dicom.codec.display.OverlayOp;
 import org.weasis.dicom.viewer2d.EventManager;
 import org.weasis.dicom.viewer2d.Messages;
+import org.weasis.dicom.viewer2d.ModalityViewDefaults;
 import org.weasis.dicom.viewer2d.PRManager;
 import org.weasis.dicom.viewer2d.View2dContainer;
 import org.weasis.dicom.viewer2d.View2dFactory;
@@ -62,6 +63,7 @@ public class ViewerPrefView extends AbstractItemDialogPage {
   private JCheckBox checkBoxLevelInverse;
   private JCheckBox checkBoxApplyPR;
   private final JButton overlayColor;
+  private final ModalityViewDefaultsPanel modalityDefaults = new ModalityViewDefaultsPanel();
 
   public ViewerPrefView() {
     super(View2dFactory.NAME, 501);
@@ -155,6 +157,10 @@ public class ViewerPrefView extends AbstractItemDialogPage {
             Messages.getString("ViewerPrefView.apply_pr"),
             eventManager.getOptions().getBooleanProperty(PRManager.PR_APPLY, false));
 
+    modalityDefaults.load(getModalityDefaults());
+    add(modalityDefaults);
+    add(GuiUtils.boxVerticalStrut(BLOCK_SEPARATOR));
+
     final JPanel otherPanel = GuiUtils.getVerticalBoxLayoutPanel();
     otherPanel.setBorder(GuiUtils.getTitledBorder(Messages.getString("ViewerPrefView.other")));
     otherPanel.add(
@@ -172,6 +178,12 @@ public class ViewerPrefView extends AbstractItemDialogPage {
     getProperties().setProperty(PreferenceDialog.KEY_SHOW_RESTORE, Boolean.TRUE.toString());
     getProperties()
         .setProperty(PreferenceDialog.KEY_HELP, "dicom-2d-viewer/#preferences"); // NON-NLS
+  }
+
+  private static String getModalityDefaults() {
+    return GuiUtils.getUICore()
+        .getSystemPreferences()
+        .getProperty(ModalityViewDefaults.P_DEFAULTS, ModalityViewDefaults.DEFAULT_SPEC);
   }
 
   private Color getOverlayColor() {
@@ -217,6 +229,9 @@ public class ViewerPrefView extends AbstractItemDialogPage {
       }
     }
 
+    GuiUtils.getUICore()
+        .getSystemPreferences()
+        .setProperty(ModalityViewDefaults.P_DEFAULTS, modalityDefaults.value());
     GuiUtils.getUICore().saveSystemPreferences();
   }
 
@@ -241,6 +256,10 @@ public class ViewerPrefView extends AbstractItemDialogPage {
     GuiUtils.getUICore()
         .getSystemPreferences()
         .putColorProperty(OverlayOp.OVERLAY_COLOR_KEY, Color.WHITE);
+    GuiUtils.getUICore()
+        .getSystemPreferences()
+        .resetProperty(ModalityViewDefaults.P_DEFAULTS, ModalityViewDefaults.DEFAULT_SPEC);
+    modalityDefaults.load(getModalityDefaults());
   }
 
   private void formatSlider(JSlider slider) {

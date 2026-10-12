@@ -70,6 +70,7 @@ import org.weasis.core.ui.editor.image.MeasureToolBar;
 import org.weasis.core.ui.editor.image.RotationToolBar;
 import org.weasis.core.ui.editor.image.SynchView;
 import org.weasis.core.ui.editor.image.ViewCanvas;
+import org.weasis.core.ui.editor.image.ViewLayoutSwitcher;
 import org.weasis.core.ui.editor.image.ViewerToolBar;
 import org.weasis.core.ui.editor.image.ZoomToolBar;
 import org.weasis.core.ui.editor.image.dockable.MeasureTool;
@@ -378,6 +379,32 @@ public class View2dContainer extends DicomViewerPlugin implements PropertyChange
         InsertableUtil.applyPreferences(toolBars, prefs, bundleName, componentName, Type.TOOLBAR);
         InsertableUtil.applyPreferences(tools, prefs, bundleName, componentName, Type.TOOL);
       }
+    }
+  }
+
+  /**
+   * Opens with the layout and the display mode configured for the modality of the first series,
+   * unless the series do not fit in it, in which case the layout chosen for their number is kept.
+   */
+  @Override
+  public void applyInitialLayout(List<MediaSeries<DicomImageElement>> seriesList) {
+    if (seriesList == null || seriesList.isEmpty()) {
+      return;
+    }
+    String modality = TagD.getTagValue(seriesList.getFirst(), Tag.Modality, String.class);
+    String spec =
+        GuiUtils.getUICore()
+            .getSystemPreferences()
+            .getProperty(ModalityViewDefaults.P_DEFAULTS, ModalityViewDefaults.DEFAULT_SPEC);
+    ModalityViewDefaults.forSeries(spec, modality, seriesList.size()).ifPresent(this::showDefault);
+  }
+
+  private void showDefault(ModalityViewDefaults.ViewDefault viewDefault) {
+    ViewLayoutSwitcher<DicomImageElement> switcher = new ViewLayoutSwitcher<>(eventManager);
+    if (viewDefault.mode() == ModalityViewDefaults.DisplayMode.TILE) {
+      switcher.showTiles(this, viewDefault.grid());
+    } else {
+      switcher.showStack(this, viewDefault.grid());
     }
   }
 

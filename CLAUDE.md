@@ -128,4 +128,5 @@ Existing docs:
 | `weasis-dicom/weasis-dicom-viewer2d/docs/mpr-curved.md` | curved MPR (panoramic, cross-sections) |
 | `weasis-dicom/weasis-dicom-viewer2d/docs/fusion-architecture.md` | PET/CT fusion pipeline |
 | `weasis-dicom/weasis-dicom-viewer2d/docs/synch-architecture.md` | view synchronization |
+| `weasis-dicom/weasis-dicom-viewer2d/docs/modality-defaults.md` | layout and display mode a new viewer opens with, by modality |
 | `weasis-distributions/docs/Native-Build-Overview.md` | installer build jobs and binary compatibility |

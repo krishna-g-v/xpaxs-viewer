@@ -1418,6 +1418,14 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
     return (int) getSelectableSlots().stream().filter(v -> v.getSeries() == null).count();
   }
 
+  /**
+   * Called once on a newly created viewer, before the series are added: lets a viewer adapt its
+   * layout to the series it is about to show. Does nothing by default.
+   */
+  public void applyInitialLayout(List<MediaSeries<E>> seriesList) {
+    // No specific initial layout
+  }
+
   public void selectLayoutPositionForAddingSeries(List<MediaSeries<E>> seriesList) {
     int nbSeriesToAdd = 1;
     if (seriesList != null) {

@@ -535,6 +535,7 @@ public class WeasisWin {
           viewer.setSelectedAndGetFocus();
         }
         if (seriesViewer instanceof ImageViewerPlugin) {
+          ((ImageViewerPlugin) viewer).applyInitialLayout(seriesList);
           if (!openInSelection) {
             ((ImageViewerPlugin) viewer).selectLayoutPositionForAddingSeries(seriesList);
           }

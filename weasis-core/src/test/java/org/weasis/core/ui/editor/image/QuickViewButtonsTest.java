@@ -49,6 +49,7 @@ class QuickViewButtonsTest {
     Fixture(MigLayoutModel current) {
       when(eventManager.getSelectedView2dContainer()).thenReturn(container);
       when(eventManager.getSelectedViewPortPane()).thenReturn(pane);
+      when(container.getSelectedViewportPane()).thenReturn(pane);
       when(container.supportsViewportPanes()).thenReturn(true);
       when(container.getCellManager()).thenReturn(cellManager);
       when(cellManager.getLayoutModel()).thenReturn(current);
