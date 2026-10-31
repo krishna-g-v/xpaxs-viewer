@@ -97,8 +97,9 @@ Documentation is split by audience; put each piece in exactly one place:
 | Where | Audience | Holds |
 |---|---|---|
 | `<module>/docs/*.md` in this repo | developers and contributors | **general concepts only**: purpose, main abstractions and their responsibilities, data flow, coordinate/value conventions, invariants, extension points |
+| `specs/*.md` in this repo | maintainers and reviewers | requirement-level specification of the XPAXS customizations of Weasis (requirement IDs, acceptance criteria, settings, traceability) |
 | User site [nroduit.github.io](https://nroduit.github.io) (separate repo) | users, integrators, administrators | how to use, configure and deploy Weasis |
-| Not in this repo | maintainer | detailed specifications, work items, design history, benchmarks, test procedures |
+| Not in this repo | maintainer | other detailed specifications, work items, design history, benchmarks, test procedures |
 
 Rules for `docs/`:
 
@@ -113,6 +114,7 @@ Existing docs:
 
 | Doc | Topic |
 |---|---|
+| `specs/XPAXS-Customization-Spec.md` | all XPAXS customizations: branding, launcher, manual-link scroll, toolbars, tiled scroll, modality defaults, export defaults, combined X-ray series |
 | `weasis-core/docs/Animation-Export.md` | APNG / GIF / DICOM SC export of 3D rotations, cine loops and recordings |
 | `weasis-core/docs/ColorMap-Design.md` | JSON color maps for 2D, fusion and 3D |
 | `weasis-core/docs/Identity-Masking.md` | display-time identity masking, masking profiles, redaction of burned-in pixels |
